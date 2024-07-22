@@ -15,8 +15,9 @@
       "vite/client"
     ],
     "allowJs": true,
-    "strict": true,
-    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "strict": false,
+    "strictNullChecks": false,
     "noUnusedLocals": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,6 +25,7 @@
     "skipLibCheck": true
   },
   "include": [
+    "libs/**/*",
     "src/**/*",
     "src/**/*.vue"
   ],

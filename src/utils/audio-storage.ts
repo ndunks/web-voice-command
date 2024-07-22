@@ -65,6 +65,21 @@ class AudioStorage {
         })
     }
 
+    delete(id: IDBValidKey) {
+        return new Promise((r, j) => {
+            if (!this.db) if (!this.db) return j(new Error('AudioStorage Not ready'))
+
+            const transaction = this.db.transaction(storeName, 'readwrite');
+            transaction.objectStore(storeName).delete(id);
+            transaction.onerror = j
+            // Report that the data item has been deleted
+            transaction.oncomplete = () => {
+                this.audioLists.value = this.audioLists.value.filter((v) => v.key != id)
+                r(true)
+            };
+        })
+    }
+
     saveUrl(url: string, name?: string) {
         return fetch(url)
             .then(r => r.blob())
@@ -72,7 +87,11 @@ class AudioStorage {
     }
 
     saveBlob(blob: Blob, name?: string) {
-        name = name || `Audio ${this.audioLists.value.length + 1}`
+        const max = this.audioLists.value.length > 0 ?
+         parseInt( this.audioLists.value[this.audioLists.value.length-1].key.toString() )
+         : 0
+
+        name = name || `Audio ${max + 1}`
         return new Promise((r, j) => {
 
             if (!this.db) return j(new Error('AudioStorage Not ready'))

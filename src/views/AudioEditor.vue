@@ -1,19 +1,25 @@
 <template>
-    <VCard variant="tonal" title="Recorder">
-        <VCardText>
-            <VAlert v-if="state == 'off'" v-text="msg" />
-            <template v-else>
-                <VBtn @click="state == 'recording' ? mr.stop() : mr.start()"
-                    :color="state == 'recording' ? 'error' : 'success'">
-                    <VIcon :icon="state == 'recording' ? 'mdi-stop' : 'mdi-record'"></VIcon>
-                    {{ state == 'recording' ? 'Stop' : 'Record' }}
-                </VBtn>
-                <VBtn @click="onSave" :disabled="!mediaBlob" class="ms-2">
-                    <VIcon icon="mdi-content-save"></VIcon>
-                    Save
-                </VBtn>
-                <Wavesurfer :url="mediaUrl" />
+    <VCard variant="tonal">
+        <VToolbar title="Audio Editor">
+            <template #append>
+                <VAlert v-if="state == 'off'" v-text="msg" />
+                <template v-else>
+                    <VBtn @click="state == 'recording' ? mr.stop() : mr.start()"
+                        :color="state == 'recording' ? 'error' : 'success'">
+                        <VIcon :icon="state == 'recording' ? 'mdi-stop' : 'mdi-record'"></VIcon>
+                        {{ state == 'recording' ? 'Stop' : 'Record' }}
+                    </VBtn>
+
+                    <VBtn @click="onSave" :disabled="noData" class="ms-2">
+                        <VIcon icon="mdi-content-save"></VIcon>
+                        Save
+                    </VBtn>
+                </template>
+
             </template>
+        </VToolbar>
+        <VCardText>
+            <Wavesurfer :url="mediaUrl" />
         </VCardText>
     </VCard>
 </template>
@@ -31,6 +37,7 @@ const msg = shallowRef('Allow microphone to record');
 const audioBuffer = shallowRef<AudioBuffer>()
 const mediaBlob = shallowRef<Blob>()
 const mediaUrl = shallowRef<string>()
+const noData = computed(() => !mediaUrl.value)
 
 let mr: MediaRecorder
 let audioCtx: AudioContext
@@ -47,6 +54,12 @@ function onSave() {
         audioStorage.saveBlob(mediaBlob.value)
     }
 }
+
+defineExpose({
+    loadBlob(blob: Blob) {
+        mediaBlob.value = blob
+    }
+})
 
 watch(mediaBlob, (blob) => {
 
@@ -76,7 +89,7 @@ function setupRecorder(stream: MediaStream) {
         console.time('record')
         state.value = 'recording'
         chunks.splice(0, chunks.length)
-        setTimeout(() => mr.stop(), 1000)
+        // setTimeout(() => mr.stop(), 1000)
     }
 
     mr.onstop = (s) => {
