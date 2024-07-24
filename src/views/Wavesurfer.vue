@@ -79,7 +79,14 @@ function display(url?: string) {
 
         regions = Regions.create()
         const fft = new SpectrogramFFTPlugin({
-
+            scale: 'linear',
+            colorMap: 'roseus',
+            labels: true,
+        });
+        const fftM = new SpectrogramFFTPlugin({
+            scale: 'mel',
+            colorMap: 'roseus',
+            labels: true,
         });
 
         instance = WaveSurfer.create({
@@ -88,7 +95,7 @@ function display(url?: string) {
             url: url,
             mediaControls: true,
             sampleRate,
-            plugins: [regions, fft],
+            plugins: [regions,, fftM, fft],
         })
         instance.on('decode', onDecode);
 
